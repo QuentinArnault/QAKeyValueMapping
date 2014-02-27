@@ -24,6 +24,7 @@
 
 @interface QATestObject : NSObject
 
+@property (nonatomic, strong) NSArray *array;
 @property (nonatomic, strong) NSSet *set;
 @property (nonatomic, strong) NSOrderedSet *orderedSet;
 
@@ -56,6 +57,41 @@
                    , @"should have merged two elements of array");
 }
 
+
+- (void)test_should_merge_set_into_set {
+    // ARRANGE
+    NSDictionary *dictWithArray = @{@"set": [NSSet setWithArray:@[@"firstElement", @"secondElement"]]};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    [testObject mergeDictionary:dictWithArray];
+    
+    // ASSERT
+    XCTAssertTrue([testObject.set
+                   isKindOfClass:[NSSet class]]
+                  , @"should have created a set");
+    XCTAssertEqual((NSUInteger)2
+                   , testObject.set.count
+                   , @"should have merged two elements of array");
+}
+
+- (void)test_should_merge_ordered_set_into_set {
+    // ARRANGE
+    NSDictionary *dictWithArray = @{@"set": [NSOrderedSet orderedSetWithArray:@[@"firstElement", @"secondElement"]]};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    [testObject mergeDictionary:dictWithArray];
+    
+    // ASSERT
+    XCTAssertTrue([testObject.set
+                   isKindOfClass:[NSSet class]]
+                  , @"should have created an ordered set");
+    XCTAssertEqual((NSUInteger)2
+                   , testObject.set.count
+                   , @"should have merged two elements of array");
+}
+
 - (void)test_should_merge_array_into_ordered_set {
     // ARRANGE
     NSDictionary *dictWithArray = @{@"orderedSet": @[@"firstElement", @"secondElement"]};
@@ -73,5 +109,39 @@
                    , @"should have merged two elements of array");
 }
 
+- (void)test_should_merge_ordered_set_into_ordered_set {
+    // ARRANGE
+    NSDictionary *dictWithArray = @{@"orderedSet": [NSOrderedSet orderedSetWithArray:@[@"firstElement", @"secondElement"]]};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    [testObject mergeDictionary:dictWithArray];
+    
+    // ASSERT
+    XCTAssertTrue([testObject.orderedSet
+                   isKindOfClass:[NSOrderedSet class]]
+                  , @"should have created an ordered set");
+    XCTAssertEqual((NSUInteger)2
+                   , testObject.orderedSet.count
+                   , @"should have merged two elements of array");
+}
+
+
+- (void)test_should_merge_array_into_array {
+    // ARRANGE
+    NSDictionary *dictWithArray = @{@"array": @[@"firstElement", @"secondElement"]};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    [testObject mergeDictionary:dictWithArray];
+    
+    // ASSERT
+    XCTAssertTrue([testObject.array
+                   isKindOfClass:[NSArray class]]
+                  , @"should have created an array");
+    XCTAssertEqual((NSUInteger)2
+                   , testObject.array.count
+                   , @"should have merged two elements of array");
+}
 
 @end

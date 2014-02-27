@@ -44,14 +44,26 @@ withMappingBlock:(MappingBlock)customMappingBloc {
         
         if ((!customMappingBloc)
             || (!customMappingBloc(self, object, key))) {
-            if ([self isPropertyWithKey:key aClassWithName:@"NSSet"])
-            {
-                [self setValue:[NSSet setWithArray:object]
-                        forKey:key];
+            if ([self isPropertyWithKey:key aClassWithName:@"NSSet"]) {
+                if ([object isKindOfClass:[NSArray class]]) {
+                    [self setValue:[NSSet setWithArray:object]
+                            forKey:key];
+                } else if ([object isKindOfClass:[NSOrderedSet class]]) {
+                    [self setValue:[NSSet setWithArray:[object allObjects]]
+                            forKey:key];
+                } else if ([object isKindOfClass:[NSSet class]]) {
+                    [self setValue:object
+                            forKey:key];
+                }
             } else if ([self isPropertyWithKey:key aClassWithName:@"NSOrderedSet"])
             {
-                [self setValue:[NSOrderedSet orderedSetWithArray:object]
-                        forKey:key];
+                if ([object isKindOfClass:[NSArray class]]) {
+                    [self setValue:[NSOrderedSet orderedSetWithArray:object]
+                            forKey:key];
+                } else if ([object isKindOfClass:[NSOrderedSet class]]) {
+                    [self setValue:object
+                            forKey:key];
+                }
             } else {
                 [self setValue:object
                         forKey:key];
