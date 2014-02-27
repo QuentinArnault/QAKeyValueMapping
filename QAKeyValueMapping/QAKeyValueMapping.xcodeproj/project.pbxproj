@@ -15,6 +15,7 @@
 		A0721E4418BFE44D00B38FFF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A0721E4218BFE44D00B38FFF /* InfoPlist.strings */; };
 		A0721E4618BFE44D00B38FFF /* QAKeyValueMappingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A0721E4518BFE44D00B38FFF /* QAKeyValueMappingTests.m */; };
 		A0721E5118BFE64400B38FFF /* NSObject+KeyValueMapping.m in Sources */ = {isa = PBXBuildFile; fileRef = A0721E5018BFE64400B38FFF /* NSObject+KeyValueMapping.m */; };
+		A0721E5518BFEEEF00B38FFF /* NSObject+KeyValueMapping.m in Sources */ = {isa = PBXBuildFile; fileRef = A0721E5018BFE64400B38FFF /* NSObject+KeyValueMapping.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -230,6 +231,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0721E5518BFEEEF00B38FFF /* NSObject+KeyValueMapping.m in Sources */,
 				A0721E4618BFE44D00B38FFF /* QAKeyValueMappingTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

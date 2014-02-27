@@ -18,6 +18,8 @@
 //  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.//
 
+#import <objc/objc-runtime.h>
+
 #import "NSObject+KeyValueMapping.h"
 
 @implementation NSObject (KeyValueMapping)
@@ -42,9 +44,27 @@ withMappingBlock:(MappingBlock)customMappingBloc {
         
         if ((!customMappingBloc)
             || (!customMappingBloc(self, object, key))) {
-#warning convert nsarray in nsset or nsorderset if necessary
-            [self setValue:object forKey:key];
+            if ([self isPropertyWithKey:key aClassWithName:@"NSSet"])
+            {
+                [self setValue:[NSSet setWithArray:object]
+                        forKey:key];
+            } else if ([self isPropertyWithKey:key aClassWithName:@"NSOrderedSet"])
+            {
+                [self setValue:[NSOrderedSet orderedSetWithArray:object]
+                        forKey:key];
+            } else {
+                [self setValue:object
+                        forKey:key];
+            }
         }
     }
 }
+
+- (BOOL)isPropertyWithKey:(NSString *)key aClassWithName:(NSString *)className {
+    objc_property_t theProperty = class_getProperty([self class], [key UTF8String]);
+    NSString *propertyAttributes = [[NSString alloc] initWithUTF8String:property_getAttributes(theProperty)];
+    
+    return [propertyAttributes rangeOfString:className].location != NSNotFound;
+}
+
 @end
