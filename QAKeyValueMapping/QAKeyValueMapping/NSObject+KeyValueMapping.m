@@ -27,54 +27,84 @@
 #pragma mark -
 - (void)mergeDictionary:(NSDictionary *)dictionary {
     [self mergeDictionary:dictionary
-         withMappingBlock:nil];
+         withMappingBlock:nil
+withCollectionMappingBlock:nil];
 }
 
 - (void)mergeDictionary:(NSDictionary *)dictionary
        withMappingBlock:(MappingBlock)customMappingBlock {
-    [self merge:dictionary forKeys:[dictionary allKeys] withMappingBlock:customMappingBlock];
+    [self mergeDictionary:dictionary
+         withMappingBlock:customMappingBlock
+withCollectionMappingBlock:nil];
+}
+
+- (void)mergeDictionary:(NSDictionary *)dictionary
+withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock {
+    [self mergeDictionary:dictionary
+         withMappingBlock:nil
+withCollectionMappingBlock:customCollectionMappingBlock];
     
+}
+
+- (void)mergeDictionary:(NSDictionary *)dictionary
+       withMappingBlock:(MappingBlock)customMappingBlock
+withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock {
+    [self merge:dictionary
+        forKeys:[dictionary allKeys]
+withMappingBlock:customMappingBlock
+withCollectionMappingBlock:customCollectionMappingBlock];
 }
 
 - (void)merge:(NSObject *)sourceObject
       forKeys:(NSArray *)keys
-withMappingBlock:(MappingBlock)customMappingBloc {
+withMappingBlock:(MappingBlock)customMappingBloc
+withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock {
     for (NSString *key in keys) {
         id object = [sourceObject valueForKey:key];
+        objc_property_t theProperty = class_getProperty([self class], [key UTF8String]);
         
-        if ((!customMappingBloc)
-            || (!customMappingBloc(self, object, key))) {
-            if ([self isPropertyWithKey:key aClassWithName:@"NSSet"]) {
-                if ([object isKindOfClass:[NSArray class]]) {
-                    [self setValue:[NSSet setWithArray:object]
-                            forKey:key];
-                } else if ([object isKindOfClass:[NSOrderedSet class]]) {
-                    [self setValue:[NSSet setWithArray:[object allObjects]]
-                            forKey:key];
-                } else if ([object isKindOfClass:[NSSet class]]) {
-                    [self setValue:object
-                            forKey:key];
+        if (theProperty) {
+            if ((!customMappingBloc)
+                || (!customMappingBloc(self, object, key))) {
+                if (customCollectionMappingBlock) {
+                    if ([object isKindOfClass:[NSArray class]]) {
+                        for (int index = 0; index < ((NSArray *)object).count; ++index) {
+                            customCollectionMappingBlock(self, object[index], key, index);
+                        }
+                    }
+                } else {
+                    if ([self isProperty:theProperty aClassWithName:@"NSSet"]) {
+                        if ([object isKindOfClass:[NSArray class]]) {
+                            [self setValue:[NSSet setWithArray:object]
+                                    forKey:key];
+                        } else if ([object isKindOfClass:[NSOrderedSet class]]) {
+                            [self setValue:[NSSet setWithArray:[object allObjects]]
+                                    forKey:key];
+                        } else if ([object isKindOfClass:[NSSet class]]) {
+                            [self setValue:object
+                                    forKey:key];
+                        }
+                    } else if ([self isProperty:theProperty aClassWithName:@"NSOrderedSet"])
+                    {
+                        if ([object isKindOfClass:[NSArray class]]) {
+                            [self setValue:[NSOrderedSet orderedSetWithArray:object]
+                                    forKey:key];
+                        } else if ([object isKindOfClass:[NSOrderedSet class]]) {
+                            [self setValue:object
+                                    forKey:key];
+                        }
+                    } else {
+                        [self setValue:object
+                                forKey:key];
+                    }
                 }
-            } else if ([self isPropertyWithKey:key aClassWithName:@"NSOrderedSet"])
-            {
-                if ([object isKindOfClass:[NSArray class]]) {
-                    [self setValue:[NSOrderedSet orderedSetWithArray:object]
-                            forKey:key];
-                } else if ([object isKindOfClass:[NSOrderedSet class]]) {
-                    [self setValue:object
-                            forKey:key];
-                }
-            } else {
-                [self setValue:object
-                        forKey:key];
             }
         }
     }
 }
 
-- (BOOL)isPropertyWithKey:(NSString *)key aClassWithName:(NSString *)className {
-    objc_property_t theProperty = class_getProperty([self class], [key UTF8String]);
-    NSString *propertyAttributes = [[NSString alloc] initWithUTF8String:property_getAttributes(theProperty)];
+- (BOOL)isProperty:(objc_property_t)property aClassWithName:(NSString *)className {
+    NSString *propertyAttributes = [[NSString alloc] initWithUTF8String:property_getAttributes(property)];
     
     return [propertyAttributes rangeOfString:className].location != NSNotFound;
 }

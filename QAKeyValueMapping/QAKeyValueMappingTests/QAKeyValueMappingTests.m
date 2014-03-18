@@ -27,6 +27,8 @@
 @property (nonatomic, strong) NSArray *array;
 @property (nonatomic, strong) NSSet *set;
 @property (nonatomic, strong) NSOrderedSet *orderedSet;
+@property (nonatomic, strong) NSString *firstElement;
+@property (nonatomic, strong) NSString *secondElement;
 
 @end
 
@@ -44,19 +46,18 @@
     // ARRANGE
     NSDictionary *dictWithArray = @{@"set": @[@"firstElement", @"secondElement"]};
     QATestObject *testObject = [[QATestObject alloc] init];
-
+    
     // ACT
     [testObject mergeDictionary:dictWithArray];
     
     // ASSERT
     XCTAssertTrue([testObject.set
                    isKindOfClass:[NSSet class]]
-                          , @"should have created a set");
+                  , @"should have created a set");
     XCTAssertEqual((NSUInteger)2
                    , testObject.set.count
                    , @"should have merged two elements of array");
 }
-
 
 - (void)test_should_merge_set_into_set {
     // ARRANGE
@@ -126,7 +127,6 @@
                    , @"should have merged two elements of array");
 }
 
-
 - (void)test_should_merge_array_into_array {
     // ARRANGE
     NSDictionary *dictWithArray = @{@"array": @[@"firstElement", @"secondElement"]};
@@ -142,6 +142,60 @@
     XCTAssertEqual((NSUInteger)2
                    , testObject.array.count
                    , @"should have merged two elements of array");
+}
+
+- (void)test_should_call_mapping_block_for_keys {
+    // ARRANGE
+    NSDictionary *dictWithTwoElements = @{@"firstElement": @"aValue"
+                                          , @"secondElement": @"anotherValue"};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    __block int callCount = 0;
+    [testObject mergeDictionary:dictWithTwoElements
+               withMappingBlock:^BOOL(NSObject *target, NSObject *source, NSString *key) {
+                   ++callCount;
+                   
+                   return NO;
+               }];
+    
+    // ASSERT
+    XCTAssertEqual([dictWithTwoElements allKeys].count
+                   , callCount
+                   , @"should have call mapping block twice");
+}
+
+- (void)test_should_call_mapping_block_for_collection_items {
+    // ARRANGE
+    NSDictionary *dictWithArray = @{@"array": @[@"firstElement", @"secondElement"]};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    __block int callCount = 0;
+    [testObject mergeDictionary:dictWithArray
+               withCollectionMappingBlock:^BOOL(NSObject *target, NSObject *source, NSString *key, int index) {
+                   ++callCount;
+                   
+                   return NO;
+               }];
+    
+    // ASSERT
+    XCTAssertEqual(2
+                   , callCount
+                   , @"should have call mapping block twice");
+}
+
+- (void)test_should_ignore_keys_not_present_in_source_object {
+    // ARRANGE
+    NSDictionary *dictWithNotPresentKey = @{@"keyFromNowhere": @"aValue"};
+    
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    [testObject mergeDictionary:dictWithNotPresentKey];
+    
+    // ASSERT
+    // should not have crashed
 }
 
 @end

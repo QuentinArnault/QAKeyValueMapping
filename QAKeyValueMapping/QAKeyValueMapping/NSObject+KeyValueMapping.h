@@ -21,10 +21,21 @@
 #import <Foundation/Foundation.h>
 
 typedef BOOL (^MappingBlock)(NSObject *target, NSObject *source, NSString *key);
+typedef BOOL (^CollectionMappingBlock)(NSObject *target, NSObject *source, NSString *collectionKey, int index);
 
 @interface NSObject (KeyValueMapping)
 
 - (void)mergeDictionary:(NSDictionary *)dictionary;
-- (void)mergeDictionary:(NSDictionary *)dictionary withMappingBlock:(MappingBlock)customMappingBlock;
+
+- (void)mergeDictionary:(NSDictionary *)dictionary
+       withMappingBlock:(MappingBlock)customMappingBlock;
+
+- (void)mergeDictionary:(NSDictionary *)dictionary
+withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock;
+
+
+- (void)mergeDictionary:(NSDictionary *)dictionary
+       withMappingBlock:(MappingBlock)customMappingBlock
+withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock;
 
 @end
