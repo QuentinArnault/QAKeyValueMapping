@@ -66,11 +66,10 @@ withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock 
         if (theProperty) {
             if ((!customMappingBloc)
                 || (!customMappingBloc(self, object, key))) {
-                if (customCollectionMappingBlock) {
-                    if ([object isKindOfClass:[NSArray class]]) {
-                        for (int index = 0; index < ((NSArray *)object).count; ++index) {
-                            customCollectionMappingBlock(self, object[index], key, index);
-                        }
+                if (([object isKindOfClass:[NSArray class]])
+                    && (customCollectionMappingBlock)) {
+                    for (int index = 0; index < ((NSArray *)object).count; ++index) {
+                        customCollectionMappingBlock(self, object[index], key, index);
                     }
                 } else {
                     if ([self isProperty:theProperty aClassWithName:@"NSSet"]) {

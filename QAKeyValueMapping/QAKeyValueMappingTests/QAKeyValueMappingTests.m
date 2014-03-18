@@ -173,16 +173,46 @@
     // ACT
     __block int callCount = 0;
     [testObject mergeDictionary:dictWithArray
-               withCollectionMappingBlock:^BOOL(NSObject *target, NSObject *source, NSString *key, int index) {
-                   ++callCount;
-                   
-                   return NO;
-               }];
+     withCollectionMappingBlock:^BOOL(NSObject *target, NSObject *source, NSString *key, int index) {
+         ++callCount;
+         
+         return NO;
+     }];
     
     // ASSERT
     XCTAssertEqual(2
                    , callCount
                    , @"should have call mapping block twice");
+}
+
+- (void)test_should_call_mapping_block_for_collection_items_and_other_items {
+    // ARRANGE
+    NSDictionary *dictWithArray = @{@"array": @[@"firstElement", @"secondElement"]
+                                    , @"firstElement": @"aValue"};
+    QATestObject *testObject = [[QATestObject alloc] init];
+    
+    // ACT
+    __block int callCount = 0;
+    __block int callCollectionCount = 0;
+    [testObject mergeDictionary:dictWithArray
+               withMappingBlock:^BOOL(NSObject *target, NSObject *source, NSString *key) {
+                   ++callCount;
+                   
+                   return NO;
+               }
+     withCollectionMappingBlock:^BOOL(NSObject *target, NSObject *source, NSString *key, int index) {
+         ++callCollectionCount;
+         
+         return NO;
+     }];
+    
+    // ASSERT
+    XCTAssertEqual(2
+                   , callCount
+                   , @"should have call mapping block");
+    XCTAssertEqual(2
+                   , callCount
+                   , @"should have call collection mapping block twice");
 }
 
 - (void)test_should_ignore_keys_not_present_in_source_object {
