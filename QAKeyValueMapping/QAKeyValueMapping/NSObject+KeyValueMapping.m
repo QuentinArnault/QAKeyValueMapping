@@ -55,6 +55,8 @@ withMappingBlock:customMappingBlock
 withCollectionMappingBlock:customCollectionMappingBlock];
 }
 
+#pragma mark -
+#pragma mark private
 - (void)merge:(NSObject *)sourceObject
       forKeys:(NSArray *)keys
 withMappingBlock:(MappingBlock)customMappingBloc

@@ -33,9 +33,13 @@ typedef BOOL (^CollectionMappingBlock)(NSObject *target, NSObject *source, NSStr
 - (void)mergeDictionary:(NSDictionary *)dictionary
 withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock;
 
-
 - (void)mergeDictionary:(NSDictionary *)dictionary
        withMappingBlock:(MappingBlock)customMappingBlock
+withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock;
+
+- (void)merge:(id<NSObject>)object
+    forKeys:(NSArray *)keys
+withMappingBlock:(MappingBlock)customMappingBlock
 withCollectionMappingBlock:(CollectionMappingBlock)customCollectionMappingBlock;
 
 @end
